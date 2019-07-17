@@ -8,56 +8,31 @@ typealias LogFormatter = (Log.Level, Any?) -> Unit
  * Usage
  *
  * ```kotlin
- * Log.warn.."This is not happening!!1"
+ * val Log.warn
+ *   get() = "💥" lvl "warn"
+ *
+ * log.warn.."This is not happening!!1"
  * ```
  */
-open class Log(val formatter: LogFormatter) {
+class Log(private val logFormatter: LogFormatter) {
 
-    inner class Level(val value: String, val log: Log = this) {
+    inner class Level(val value: String, val extra: Any? = null, val log: Log = this) {
         operator fun <T> rangeTo(message: T) {
-            formatter(this, message as Any?)
+            logFormatter(this, message as Any?)
         }
     }
 
-    val verbose = "📜".asLevel()
-    val debug = "🤖".asLevel()
-    val info = "ℹ️".asLevel()
-    val warn = "🚨".asLevel()
-    val error = "💥".asLevel()
+    private val extensions = mutableMapOf<String, Level>()
 
-    val edit = "✏️".asLevel()
-    val conf = "⚙️".asLevel()
-    val skip = "⏭".asLevel()
-    val save = "💾".asLevel()
-    val tool = "🛠".asLevel()
-    val exit = "👋".asLevel()
-    val beer = "🍺".asLevel()
-
-    fun String.asLevel() = Level(this)
-}
-
-fun defaultLogger(printStackTrace: Boolean = false) = Log { level, message ->
-    val throwable = if (message is Throwable) { message } else { null }
-    val m = throwable?.message ?: message
-
-    when (level) {
-        level.log.error -> System.err.println("${level.value} $m")
-        else -> println("${level.value} $m")
+    infix fun String.lvl(key: String): Level {
+        return extensions[key] ?: Level(this).apply {
+            extensions[key] = this
+        }
     }
 
-    if (printStackTrace) throwable?.printStackTrace(System.err)
-}
-
-/**
- * try-catch anything + auto logging. use wisely
- */
-inline fun <T> safe(level: Log.Level? = null, block: () -> T?) : T? {
-    return try {
-        block()
-    } catch (t: Throwable) {
-        if (level != null) {
-            level..t
+    infix fun String.lvl(key: Pair<String, Any>): Level {
+        return extensions[key.first] ?: Level(value = this, extra = key.second).apply {
+            extensions[key.first] = this
         }
-        null
     }
 }
