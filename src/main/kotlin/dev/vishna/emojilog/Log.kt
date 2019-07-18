@@ -9,14 +9,14 @@ typealias LogFormatter = (Log.Level, Any?) -> Unit
  *
  * ```kotlin
  * val Log.warn
- *   get() = "💥" lvl "warn"
+ *   get() = { "💥" } lvl "warn"
  *
  * log.warn.."This is not happening!!1"
  * ```
  */
 class Log(private val logFormatter: LogFormatter) {
 
-    inner class Level(val value: String, val extra: Any? = null, val log: Log = this) {
+    inner class Level(val value: Any, val log: Log = this) {
         operator fun <T> rangeTo(message: T) {
             logFormatter(this, message as Any?)
         }
@@ -24,15 +24,9 @@ class Log(private val logFormatter: LogFormatter) {
 
     private val extensions = mutableMapOf<String, Level>()
 
-    infix fun String.lvl(key: String): Level {
-        return extensions[key] ?: Level(this).apply {
+    infix fun (() -> Any).lvl(key: String): Level {
+        return extensions[key] ?: Level(this()).apply {
             extensions[key] = this
-        }
-    }
-
-    infix fun String.lvl(key: Pair<String, Any>): Level {
-        return extensions[key.first] ?: Level(value = this, extra = key.second).apply {
-            extensions[key.first] = this
         }
     }
 }

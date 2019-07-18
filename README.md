@@ -40,7 +40,7 @@ log.wtf..IllegalStateException("💩 hit the fan") // prints: 💥💥💥 💩 
 
 ```kotlin
 val Log.shrug
-  get() = "🤷" lvl "shrug"
+  get() = { "🤷" } lvl "shrug"
 ```
 
 __NOTE__: ```"shrug"``` here is a key by which this extension will be cached by the `Log` instance
@@ -49,10 +49,12 @@ If you would want to do some "extra something" with the output e.g. style the co
 
 ```kotlin
 val Log.fail
-  get() = "❌" lvl "fail" to 0xFF0000
+  get() = { "❌" to 0xFF0000 } lvl "fail"
 ```
 
 __NOTE__: This won't magically create colored text for you, you will need to handle this in your own, custom logger.
+
+*{Using closure}* to avoid evaluating expression whenever the getter is getting called 😉 
 
 ### Defining own logger
 
@@ -87,5 +89,4 @@ Please check out tests 👉 [LogTest](https://github.com/vishna/emojilog/blob/ma
 
 While creating this library I wasn't aware of [Emoji-Log](https://github.com/ahmadawais/Emoji-Log) by [ahmadawais](https://ahmadawais.com/). The scope of that project is different and focuses on formatting of git commit messages while this one is meant to be logger for simple pet projects written in Kotlin. Anyway, as a tribute to his project, I added [git extensions](https://github.com/vishna/emojilog/blob/master/src/main/kotlin/dev/vishna/emojilog/git/Git.kt) and some [tests](https://github.com/vishna/emojilog/blob/master/src/test/kotlin/dev/vishna/emojilog/GitLogTest.kt) for it.
 
-# log.beer.."Cheers!"
-## 🍺 Cheers!
+🍺 Cheers!
